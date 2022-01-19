@@ -1,0 +1,106 @@
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+
+#define N 10
+#define MAXLETTERS 26
+
+int perm(int routines[], int length, int k, int used[]);
+int getCost(int *routines, int length);
+void precompCosts(int numRoutines);
+int calculateCost(int routine1, int routine2);
+void init(int indance[][MAXLETTERS], int numRoutines, int value);
+
+// Will store who is in which dance routine.
+int indance[N][MAXLETTERS];
+
+// cost[i][j] will store the # of quick changes between routine i
+// and routine j.
+int cost[N][N];
+
+int main(void) {
+
+  int numRoutines;
+  FILE * infile = fopen("intest.txt", "r");
+  fscanf(infile, "%d", &numRoutines);
+  
+  //initialize to 0
+  init(indance, numRoutines, 0);
+
+  char routine [MAXLETTERS+1];
+  for(int i=0; i<numRoutines; i++){
+    fscanf(infile, "%s", routine);
+    //fill the indance array
+    int numbDancers =  strlen(routine);
+    for(int j=0; j<numbDancers; j++){
+      indance[i][routine[j]-'A'] = 1;
+    }
+
+  }
+
+  //precompute the cost of routine pairs
+  precompCosts(numRoutines);
+
+  //declare and initialize input parameters of perm
+  int used [N];
+  for (int i=0; i<N; i++)
+    used[i] = 0;
+
+  int order[N];
+
+  // call the perm function and print the output
+  printf("%d\n", perm(order, numRoutines, 0, used));  
+    
+}//end main
+
+
+// Calculates and stores the costs of changing between all pairs
+// of routines.
+void precompCosts(int numRoutines) {
+  for(int i=0; i<numRoutines; i++)
+    for(int j=0; j<numRoutines; j++)
+      cost[i][j] =  calculateCost(i,j);
+ 
+}
+
+// Returns the cost of changing between routine1 and routine2.
+int calculateCost(int routine1, int routine2) {
+  int cost = 0;
+  for(int i=0; i<MAXLETTERS; i++)
+    if(indance[routine1][i]==1 && indance[routine2][i]==1)
+      cost++;
+
+  return cost;
+}
+
+// Permute routines to find the minimum cost
+int perm(int routines[], int length, int k, int used[]) {
+
+  if (k==length)
+    return getCost(routines, length);
+
+  //keeps track of minimum cost
+  int minCost = 1000;
+
+  for (int i=0; i<length; i++){
+    if (used[i]) continue;
+    routines[k] = i;
+    used[i] = 1;
+    int currCost = perm(routines, length, k+1, used);
+    if (currCost<minCost)
+      minCost = currCost;
+    used[i] = 0;
+    
+  }
+   
+return minCost;
+}
+
+// Returns the cost of this array ordering of dances.
+int getCost(int *routines, int length) {
+  int totalCost = 0;
+  // calculate the total cost of routines
+  for(int i=0; i<length-1; i++)
+    totalCost+=cost[routines[i]][routines[i+1]];
+  return totalCost;
+}

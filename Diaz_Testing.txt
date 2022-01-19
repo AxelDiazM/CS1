@@ -1,0 +1,9 @@
+//Axel Diaz
+//Assignment 2 
+
+This test case was created using the nomenclature provided on the testcase upload on the web course.
+-Number of test cases (from 1 to 25)
+	-Number of pairs( Up to 8)
+		- Pairs of (x,y) coordinates
+
+For this assignment I used 8 test cases to prove the code. there are cases ranging from 1 to 6
